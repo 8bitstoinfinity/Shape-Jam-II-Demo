@@ -20,7 +20,7 @@ public class SpriteLoader : MonoBehaviour
             return;
 
         var rect = new Rect(0, 0, tex.width, tex.height);
-        spriteRenderer.sprite = Sprite.Create(tex, rect, rect.center);
+        spriteRenderer.sprite = Sprite.Create(tex, rect, Vector2.one * 0.5f);
     }
 
     private Texture2D LoadTexture()
