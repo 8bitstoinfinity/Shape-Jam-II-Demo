@@ -2,25 +2,47 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(SpriteRenderer))]
 public class SpriteLoader : MonoBehaviour
 {
     [SerializeField] string m_filePath = "";
     [SerializeField] private bool m_clearColorAfterLoad = true;
 
+    private SpriteRenderer m_spriteRenderer = null;
+    private Image m_image = null;
+
+    private void Awake()
+    {
+        m_spriteRenderer = GetComponent<SpriteRenderer>();
+        if (m_spriteRenderer == null) {
+            m_image = GetComponent<Image>();
+            if (m_image == null) {
+                Debug.LogError($"Sprite Loader requires a Sprite Renderer or an Image, but neither exists in {name}.");
+                Destroy(this);
+            }
+        }
+    }
+
     private void Start()
     {
-        var spriteRenderer = GetComponent<SpriteRenderer>();
-        if (m_clearColorAfterLoad)
-            spriteRenderer.color = Color.white;
-
         var tex = LoadTexture();
         if (tex == null)
             return;
-
         var rect = new Rect(0, 0, tex.width, tex.height);
-        spriteRenderer.sprite = Sprite.Create(tex, rect, Vector2.one * 0.5f);
+        var sprite = Sprite.Create(tex, rect, Vector2.one * 0.5f);
+
+        if (m_spriteRenderer != null) {
+            if (m_clearColorAfterLoad)
+                m_spriteRenderer.color = Color.white;
+            m_spriteRenderer.sprite = sprite;
+        }
+
+        if (m_image != null) {
+            if (m_clearColorAfterLoad)
+                m_image.color = Color.white;
+            m_image.sprite = sprite;
+        }
     }
 
     private Texture2D LoadTexture()
