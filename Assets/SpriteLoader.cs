@@ -38,19 +38,30 @@ using UnityEngine.UI;
 // (3) include in your instructions what the paths are for various assets in the game
 
 // you can expand this to:
-// - guarantee cross-platform support by using file system stuff
-// - read a text file that allows the user to specify paths for files 
-// - set up paths relative to the executable's folder
+// - read a text file that allows the user to specify paths for files (this
+// will be difficult as they're set up to be relative to the project's install
+// directory)
 // - load images for components other than Sprite Renderer and Image
 // - use the same general principles for other types of assets
 
 public class SpriteLoader : MonoBehaviour
 {
+    enum ScaleMode
+    {
+        ScaleToLoadedImage,
+        ScaleToSprite
+    }
+
     [SerializeField, Tooltip("Absolute path to the asset")]
-    string m_filePath = "";
+    string m_relativeFilePath = "";
 
     [SerializeField, Tooltip("Whether to clear the color (to white) when loading an image")]
     private bool m_clearColorAfterLoad = true;
+
+    [SerializeField,
+        Tooltip("Loaded Image: Keep image the same size\n"
+        + "Sprite: Scale to match the size set in the editor")]
+    private ScaleMode m_scaleMode = ScaleMode.ScaleToLoadedImage;
 
     private SpriteRenderer m_spriteRenderer = null;
     private Image m_image = null;
@@ -71,6 +82,9 @@ public class SpriteLoader : MonoBehaviour
     // apply the texture from file to the Sprite Renderer or Image
     private void Start()
     {
+        if (m_spriteRenderer == null && m_image == null)
+            return;
+
         // get texture from file
         var tex = LoadTexture();
         if (tex == null)
@@ -80,6 +94,7 @@ public class SpriteLoader : MonoBehaviour
         var rect = new Rect(0, 0, tex.width, tex.height);
 
         // construct a Sprite for Unity to use
+        // NOTE: this sprite defaults to 100 ppu
         var sprite = Sprite.Create(tex, rect, Vector2.one * 0.5f);
 
         // if we're doing a Sprite Renderer...
@@ -87,15 +102,30 @@ public class SpriteLoader : MonoBehaviour
             if (m_clearColorAfterLoad)
                 m_spriteRenderer.color = Color.white;
             m_spriteRenderer.sprite = sprite;
+
+            // scale if desired (sprites default to image size)
+            if (m_scaleMode == ScaleMode.ScaleToSprite)
+                transform.localScale = Vector2.one * 100f / sprite.rect.size;
         }
 
         // if we're doing an image...
-        if (m_spriteRenderer != null) {
-            if (m_image != null) {
-                if (m_clearColorAfterLoad)
-                    m_image.color = Color.white;
-                m_image.sprite = sprite;
+        if (m_image != null) {
+            if (m_clearColorAfterLoad)
+                m_image.color = Color.white;
+            m_image.sprite = sprite;
+
+            // scale if desired (images default to in-editor size)
+            if (m_scaleMode == ScaleMode.ScaleToLoadedImage) {
+                m_image.rectTransform.sizeDelta *= sprite.rect.size / 100f;
             }
+        }
+    }
+
+    private string FilePath
+    {
+        get {
+            var appDataPath = Application.dataPath;
+            return $"{appDataPath}/{m_relativeFilePath}";
         }
     }
 
@@ -103,13 +133,13 @@ public class SpriteLoader : MonoBehaviour
     private Texture2D LoadTexture()
     {
         // double-check in case file got removed
-        if (File.Exists(m_filePath) == false) {
-            Debug.LogError($"Failed to load file for {name} at [{m_filePath}].");
+        if (File.Exists(FilePath) == false) {
+            Debug.LogError($"File for {name} does not exist: [{FilePath}].");
             return null;
         }
 
         // get the file data
-        var data = File.ReadAllBytes(m_filePath);
+        var data = File.ReadAllBytes(FilePath);
 
         // put it in a texture
         var tex = new Texture2D(1, 1);
