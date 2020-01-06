@@ -35,7 +35,7 @@ using UnityEngine.UI;
 // (2) add files sprite.png and ui.png to the PROJECT_Data folder
 //     (where PROJECT is the name of the build)
 
-// (1) attach this to a Game Object iwht Sprite Renderer or Image 
+// (1) attach this to a Game Object with Sprite Renderer or Image 
 // (2) set the file path relative to the game's data directory
 // (3) include instructions for the end user to include the necessary files in
 //     the data directory (this will be the PROJECT_Data folder where PROJECT is
@@ -65,7 +65,7 @@ public class SpriteLoader : MonoBehaviour
         + "Sprite: Scale to match the size set in the editor")]
     private ScaleMode m_scaleMode = ScaleMode.ScaleToLoadedImage;
 
-    [SerializeField, Tooltip("Absolute path to the asset")]
+    [SerializeField, Tooltip("Path to asset relative to build's PROJECT_Data/ folder")]
     private string m_relativeFilePath = "";
 
     [SerializeField,
