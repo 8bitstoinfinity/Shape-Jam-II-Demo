@@ -31,18 +31,26 @@ using UnityEngine.UI;
 // by Joshua McLean
 
 // to run the demo in main.unity:
-// (1) create an image file C:\tmp\blue.png
+// (1) build the demo
+// (2) add files sprite.png and ui.png to the PROJECT_Data folder
+//     (where PROJECT is the name of the build)
 
-// (1) attach this component to a Game Object which has a Sprite Renderer or Image component
-// (2) set the file path to an absolute path
-// (3) include in your instructions what the paths are for various assets in the game
+// (1) attach this to a Game Object iwht Sprite Renderer or Image 
+// (2) set the file path relative to the game's data directory
+// (3) include instructions for the end user to include the necessary files in
+//     the data directory (this will be the PROJECT_Data folder where PROJECT is
+//     your project name in your built game)
 
 // you can expand this to:
-// - read a text file that allows the user to specify paths for files (this
-// will be difficult as they're set up to be relative to the project's install
-// directory)
+// - use a global subdirectory in the data folder to keep assets organized
+// - allow multiple extensions; this code will work for any image format the
+//   Unity recognizes, including jpg and png
 // - load images for components other than Sprite Renderer and Image
 // - use the same general principles for other types of assets
+// - have a text settings file for options in this component
+// - read a text file that allows the user to specify paths for files (this
+//   will be difficult as they're set up to be relative to the project's install
+//   directory)
 
 public class SpriteLoader : MonoBehaviour
 {
@@ -52,16 +60,21 @@ public class SpriteLoader : MonoBehaviour
         ScaleToSprite
     }
 
-    [SerializeField, Tooltip("Absolute path to the asset")]
-    string m_relativeFilePath = "";
-
-    [SerializeField, Tooltip("Whether to clear the color (to white) when loading an image")]
-    private bool m_clearColorAfterLoad = true;
-
     [SerializeField,
         Tooltip("Loaded Image: Keep image the same size\n"
         + "Sprite: Scale to match the size set in the editor")]
     private ScaleMode m_scaleMode = ScaleMode.ScaleToLoadedImage;
+
+    [SerializeField, Tooltip("Absolute path to the asset")]
+    private string m_relativeFilePath = "";
+
+    [SerializeField,
+        Tooltip("Whether to throw an error if we can't find the file\n"
+        + "(disable this for Shape Jam II week 1 - you won't have image files)")]
+    private bool m_missingFileIsAnError = true;
+
+    [SerializeField, Tooltip("Whether to clear the color (to white) when loading an image")]
+    private bool m_clearColorAfterLoad = true;
 
     private SpriteRenderer m_spriteRenderer = null;
     private Image m_image = null;
@@ -132,9 +145,11 @@ public class SpriteLoader : MonoBehaviour
     // load the texture from file
     private Texture2D LoadTexture()
     {
-        // double-check in case file got removed
+        // check for file 
         if (File.Exists(FilePath) == false) {
-            Debug.LogError($"File for {name} does not exist: [{FilePath}].");
+            if( m_missingFileIsAnError )
+                Debug.LogError($"File for {name} does not exist: [{FilePath}].");
+
             return null;
         }
 
