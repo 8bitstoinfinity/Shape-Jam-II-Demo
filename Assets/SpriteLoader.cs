@@ -80,8 +80,7 @@ public class SpriteLoader : MonoBehaviour
     private Image m_image = null;
 
     // verify that we have either a Sprite Renderer or Image; otherwise this component is useless
-    private void Awake()
-    {
+    private void Awake() {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
         if (m_spriteRenderer == null) {
             m_image = GetComponent<Image>();
@@ -93,8 +92,7 @@ public class SpriteLoader : MonoBehaviour
     }
 
     // apply the texture from file to the Sprite Renderer or Image
-    private void Start()
-    {
+    private void Start() {
         if (m_spriteRenderer == null && m_image == null)
             return;
 
@@ -134,8 +132,7 @@ public class SpriteLoader : MonoBehaviour
         }
     }
 
-    private string FilePath
-    {
+    private string FilePath {
         get {
             var appDataPath = Application.dataPath;
             return $"{appDataPath}/{m_relativeFilePath}";
@@ -143,11 +140,10 @@ public class SpriteLoader : MonoBehaviour
     }
 
     // load the texture from file
-    private Texture2D LoadTexture()
-    {
+    private Texture2D LoadTexture() {
         // check for file 
         if (File.Exists(FilePath) == false) {
-            if( m_missingFileIsAnError )
+            if (m_missingFileIsAnError)
                 Debug.LogError($"File for {name} does not exist: [{FilePath}].");
 
             return null;
@@ -157,8 +153,13 @@ public class SpriteLoader : MonoBehaviour
         var data = File.ReadAllBytes(FilePath);
 
         // put it in a texture
-        var tex = new Texture2D(1, 1);
-        tex.LoadImage(data);
+        var tex = new Texture2D(2, 2);
+        var wasLoaded = tex.LoadImage(data);
+
+        if (wasLoaded == false) {
+            Debug.LogError($"Failed to load data for {name} at [{FilePath}] (but file exists)");
+            return null;
+        }
 
         return tex;
     }

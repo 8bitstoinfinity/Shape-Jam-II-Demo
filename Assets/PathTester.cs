@@ -29,6 +29,11 @@ using TMPro;
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class PathTester : MonoBehaviour
 {
+    [SerializeField] private bool m_showCurrentDirectory = true;
+    [SerializeField] private bool m_showDataPath = true;
+    [SerializeField] private bool m_showPersistentDataPath = true;
+    [SerializeField] private bool m_showStreamingAssetsPath = true;
+
     private void Start()
     {
         var tm = GetComponent<TextMeshProUGUI>();
@@ -36,20 +41,24 @@ public class PathTester : MonoBehaviour
             return;
         tm.text = "";
 
-        /*
-        var cur = Directory.GetCurrentDirectory();
-        tm.text += $"CWD: {cur}\n";
-        */
+        if (m_showCurrentDirectory) {
+            var cur = Directory.GetCurrentDirectory();
+            tm.text += $"CWD: {cur}\n";
+        }
 
-        var appData = Application.dataPath;
-        tm.text += $"App Data: {appData}\n";
+        if (m_showDataPath) {
+            var appData = Application.dataPath;
+            tm.text += $"App Data: {appData}\n";
+        }
 
-        /*
-        var appPersist = Application.persistentDataPath;
-        tm.text += $"Persistent Data: {appPersist}\n";
+        if (m_showPersistentDataPath) {
+            var appPersist = Application.persistentDataPath;
+            tm.text += $"Persistent Data: {appPersist}\n";
+        }
 
-        var appStream = Application.streamingAssetsPath;
-        tm.text += $"Streaming Assets: {appStream}\n";
-        */
+        if (m_showStreamingAssetsPath) {
+            var appStream = Application.streamingAssetsPath;
+            tm.text += $"Streaming Assets: {appStream}\n";
+        }
     }
 }

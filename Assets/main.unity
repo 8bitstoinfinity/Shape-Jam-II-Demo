@@ -325,6 +325,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de0343cb20db2540a3a82388c6a93ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_showCurrentDirectory: 0
+  m_showDataPath: 1
+  m_showPersistentDataPath: 0
+  m_showStreamingAssetsPath: 0
 --- !u!114 &278104140
 MonoBehaviour:
   m_ObjectHideFlags: 0
